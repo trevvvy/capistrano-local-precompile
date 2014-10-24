@@ -43,12 +43,12 @@ module Capistrano
 
               servers = find_servers :roles => assets_role, :except => { :no_release => true }
               servers.each do |srvr|
-                if srvr.match /\:\d+/
-                  srvr, port = srvr.split(":")
+                if srvr.to_s.match /\:\d+/
+                  srvr, port = srvr.to_s.split(":")
                 end
 
-                run_locally "#{fetch(:rsync_cmd)} -p #{port} ./#{fetch(:assets_dir)}/ #{user}@#{srvr}:#{release_path}/#{fetch(:assets_dir)}/"
-                run_locally "#{fetch(:rsync_cmd)} -p #{port} ./#{local_manifest_path} #{user}@#{srvr}:#{release_path}/assets_manifest#{File.extname(local_manifest_path)}"
+                run_locally "#{fetch(:rsync_cmd)} -e 'ssh -p #{port}' ./#{fetch(:assets_dir)}/ #{user}@#{srvr}:#{release_path}/#{fetch(:assets_dir)}/"
+                run_locally "#{fetch(:rsync_cmd)} -e 'ssh -p #{port}' ./#{local_manifest_path} #{user}@#{srvr}:#{release_path}/assets_manifest#{File.extname(local_manifest_path)}"
               end
             end
           end
