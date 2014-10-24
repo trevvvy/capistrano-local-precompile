@@ -39,10 +39,16 @@ module Capistrano
               local_manifest_path = run_locally "ls #{assets_dir}/manifest*"
               local_manifest_path.strip!
 
+              port = fetch(:port) || 22
+
               servers = find_servers :roles => assets_role, :except => { :no_release => true }
               servers.each do |srvr|
-                run_locally "#{fetch(:rsync_cmd)} ./#{fetch(:assets_dir)}/ #{user}@#{srvr}:#{release_path}/#{fetch(:assets_dir)}/"
-                run_locally "#{fetch(:rsync_cmd)} ./#{local_manifest_path} #{user}@#{srvr}:#{release_path}/assets_manifest#{File.extname(local_manifest_path)}"
+                if srvr.match /\:\d+/
+                  srvr, port = srvr.split(":")
+                end
+
+                run_locally "#{fetch(:rsync_cmd)} -p #{port} ./#{fetch(:assets_dir)}/ #{user}@#{srvr}:#{release_path}/#{fetch(:assets_dir)}/"
+                run_locally "#{fetch(:rsync_cmd)} -p #{port} ./#{local_manifest_path} #{user}@#{srvr}:#{release_path}/assets_manifest#{File.extname(local_manifest_path)}"
               end
             end
           end
