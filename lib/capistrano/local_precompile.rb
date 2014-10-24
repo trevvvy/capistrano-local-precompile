@@ -12,6 +12,10 @@ module Capistrano
         set(:assets_dir)       { "public/assets" }
         set(:rsync_cmd)        { "rsync -av" }
 
+        set(:turbosprockets_enabled)    { false }
+        set(:turbosprockets_backup_dir) { "public/.assets" }
+        set(:rsync_cmd)                 { "rsync -av" }
+
         before "deploy:assets:precompile", "deploy:assets:prepare"
         before "deploy:assets:symlink", "deploy:assets:remove_manifest"
 
@@ -26,10 +30,19 @@ module Capistrano
             end
 
             task :cleanup, :on_no_matching_servers => :continue  do
-              run_locally "rm -rf #{fetch(:assets_dir)}"
+              if fetch(:turbosprockets_enabled)
+                run_locally "mv #{fetch(:assets_dir)} #{fetch(:turbosprockets_backup_dir)}"
+              else
+                run_locally "rm -rf #{fetch(:assets_dir)}"
+              end
             end
 
             task :prepare, :on_no_matching_servers => :continue  do
+              if fetch(:turbosprockets_enabled)
+                run_locally "mkdir -p #{fetch(:turbosprockets_backup_dir)}"
+                run_locally "mv #{fetch(:turbosprockets_backup_dir)} #{fetch(:assets_dir)}"
+                run_locally "#{fetch(:cleanexpired_cmd)}"
+              end
               run_locally "#{fetch(:precompile_cmd)}"
             end
 
