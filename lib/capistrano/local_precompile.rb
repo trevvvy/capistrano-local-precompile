@@ -17,17 +17,17 @@ module Capistrano
         set(:rsync_cmd)                 { "rsync -av" }
 
         before "deploy:assets:precompile", "deploy:assets:prepare"
-        before "deploy:assets:symlink", "deploy:assets:remove_manifest"
+        # before "deploy:assets:symlink", "deploy:assets:remove_manifest"
 
         after "deploy:assets:precompile", "deploy:assets:cleanup"
 
         namespace :deploy do
           namespace :assets do
 
-            desc "remove manifest file from remote server"
-            task :remove_manifest do
-              run "rm -f #{shared_path}/#{shared_assets_prefix}/manifest*"
-            end
+            # desc "remove manifest file from remote server"
+            # task :remove_manifest do
+            #   run "rm -f #{shared_path}/#{shared_assets_prefix}/manifest*"
+            # end
 
             task :cleanup, :on_no_matching_servers => :continue  do
               if fetch(:turbosprockets_enabled)
