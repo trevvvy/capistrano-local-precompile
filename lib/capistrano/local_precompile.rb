@@ -43,7 +43,9 @@ module Capistrano
                 run_locally "mv #{fetch(:turbosprockets_backup_dir)} #{fetch(:assets_dir)}"
                 run_locally "#{fetch(:cleanexpired_cmd)}"
               end
-              run_locally "#{fetch(:precompile_cmd)}"
+              unless ENV["USE_EXISTING_BUILD"]
+                run_locally "#{fetch(:precompile_cmd)}"
+              end
             end
 
             desc "Precompile assets locally and then rsync to app servers"
